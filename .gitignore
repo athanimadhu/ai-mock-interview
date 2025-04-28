@@ -53,4 +53,32 @@ htmlcov/
 # Virtual environment
 venv/
 env/
-ENV/ 
+ENV/
+
+# Firebase
+.firebase/
+firebase-debug.log
+ui-debug.log
+.runtimeconfig.json
+
+# Build output
+public/
+
+# Environment variables
+.env
+.env.local
+.env.*
+
+# Dependencies
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db 
