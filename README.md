@@ -1,95 +1,89 @@
 # Mock Interview Coach
 
-A full-stack application that provides automated mock technical interviews using AI agents. The system includes an interviewer agent that generates questions, a scorer agent that evaluates responses, and a feedback agent that provides constructive feedback.
-
-## Features
-
-- Resume parsing and analysis
-- Dynamic question generation based on candidate's profile
-- Real-time response evaluation
-- Detailed feedback and scoring
-- Interactive interview sessions
-
-## Tech Stack
-
-- Backend: FastAPI, Python
-- Frontend: React, TypeScript
-- AI: OpenAI API
-- PDF Processing: PyPDF2
+A full-stack application that provides AI-powered mock interviews, real-time feedback, and scoring.
 
 ## Project Structure
 
+- `frontend/`: React frontend application
+- `functions/`: Firebase Cloud Functions backend
+- `mcp_orchestrator/`: Local development server for testing
+- `public/`: Static assets
+
+## Features
+
+- AI-powered interview questions based on resume
+- Real-time response scoring and feedback
+- Session management and progress tracking
+- PDF resume parsing and analysis
+
+## Local Development
+
+### Backend (Firebase Functions)
+
+See [functions/README.md](functions/README.md) for detailed setup instructions.
+
+### Frontend
+
+1. Navigate to the frontend directory:
+```bash
+cd frontend
 ```
-.
-├── frontend/               # React frontend application
-│   ├── public/            # Static files
-│   └── src/               # Source code
-│       ├── components/    # React components
-│       ├── services/      # API services
-│       └── types/         # TypeScript type definitions
-│
-├── mcp_orchestrator/      # FastAPI backend
-│   └── app/
-│       ├── agents/       # AI agent implementations
-│       └── utils/        # Utility functions
-│
-└── requirements.txt       # Python dependencies
+
+2. Install dependencies:
+```bash
+npm install
 ```
 
-## Setup
+3. Start the development server:
+```bash
+npm start
+```
 
-1. Clone the repository
-2. Install Python dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Create a `.env` file in the root directory and add your OpenAI API key:
-   - Required environment variable: `OPENAI_API_KEY`
-   - Get your API key from [OpenAI's platform](https://platform.openai.com/api-keys)
-4. Install frontend dependencies:
-   ```bash
-   cd frontend
-   npm install
-   ```
+## Environment Setup
 
-## Running the Application
+1. Create a `.env` file in the root directory:
+```
+OPENAI_API_KEY=your_openai_api_key_here
+```
 
-1. Start the backend server:
-   ```bash
-   cd mcp_orchestrator
-   uvicorn app.main:app --reload
-   ```
+2. Set up Firebase:
+   - Create a new Firebase project
+   - Enable Cloud Functions
+   - Configure Firebase credentials
 
-2. Start the frontend development server:
-   ```bash
-   cd frontend
-   npm start
-   ```
+## Deployment
 
-## API Endpoints
+### Frontend
 
-- `POST /start-session`: Start a new interview session
-- `POST /next-question`: Get the next interview question
-- `POST /submit-response`: Submit and evaluate a response
-- `GET /session/{session_id}`: Get session state
+```bash
+cd frontend
+npm run build
+firebase deploy --only hosting
+```
+
+### Backend
+
+```bash
+cd functions
+firebase deploy --only functions
+```
+
+## Testing
+
+Run the test suite:
+```bash
+python -m pytest test_interview.py
+```
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+3. Submit a pull request
 
 ## License
 
-MIT License
-
-## Acknowledgments
-
-- OpenAI for GPT-3.5
-- FastAPI team for the excellent framework
-- Material-UI team for the component library
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## API Documentation
 

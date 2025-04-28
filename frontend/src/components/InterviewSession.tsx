@@ -4,7 +4,6 @@ import { InterviewResponse } from '../types/interview';
 import { ExitToApp } from '@mui/icons-material';
 
 interface InterviewSessionProps {
-    sessionId: string;
     currentQuestion: string;
     onSubmitResponse: (response: string) => Promise<void>;
     responseHistory: InterviewResponse[];
@@ -13,7 +12,6 @@ interface InterviewSessionProps {
 }
 
 export const InterviewSession: React.FC<InterviewSessionProps> = ({
-    sessionId,
     currentQuestion,
     onSubmitResponse,
     responseHistory,

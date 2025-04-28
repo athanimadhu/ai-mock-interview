@@ -45,7 +45,6 @@ function App() {
         response,
       })
 
-      const nextQuestion = await api.getNextQuestion(sessionState.session_id)
       const updatedState = await api.getSessionState(sessionState.session_id)
       setSessionState(updatedState)
     } catch (error) {
@@ -69,7 +68,6 @@ function App() {
           <SessionSetup onSessionStart={handleSessionStart} />
         ) : (
           <InterviewSession
-            sessionId={sessionState.session_id}
             currentQuestion={sessionState.current_question}
             onSubmitResponse={handleSubmitResponse}
             responseHistory={sessionState.response_history}
