@@ -21,29 +21,29 @@ wheels/
 *.egg
 MANIFEST
 .env
-
-# Virtual Environment
-cursor_ai/
+.venv
+env/
 venv/
 ENV/
+env.bak/
+venv.bak/
+cursor_ai/
 
 # Node.js
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# IDEs and editors
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
 
 # OS
 .DS_Store
