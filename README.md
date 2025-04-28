@@ -1,149 +1,95 @@
-# AI Mock Interview System
+# Mock Interview Coach
 
-An intelligent mock interview system that conducts personalized technical interviews based on your resume and desired job role. The system uses GPT-3.5 to generate relevant questions, provide real-time feedback, and score responses.
+A full-stack application that provides automated mock technical interviews using AI agents. The system includes an interviewer agent that generates questions, a scorer agent that evaluates responses, and a feedback agent that provides constructive feedback.
 
 ## Features
 
-- Upload your resume (PDF format)
-- Specify target job role and description
-- Get personalized technical interview questions
-- Receive immediate feedback and scoring
-- Track interview progress and performance
-- Modern, responsive web interface
+- Resume parsing and analysis
+- Dynamic question generation based on candidate's profile
+- Real-time response evaluation
+- Detailed feedback and scoring
+- Interactive interview sessions
 
 ## Tech Stack
 
-### Backend
-- FastAPI (Python web framework)
-- OpenAI GPT-3.5
-- PyPDF2 for PDF processing
-- LangChain for AI orchestration
-
-### Frontend
-- React with TypeScript
-- Material-UI (MUI) for components
-- Axios for API communication
-- Vite for build tooling
-
-## Setup
-
-### Prerequisites
-- Python 3.11+
-- Node.js 16+
-- OpenAI API key
-
-### Backend Setup
-
-1. Create a virtual environment:
-```bash
-python -m venv cursor_ai
-source cursor_ai/bin/activate  # On Windows: cursor_ai\Scripts\activate
-```
-
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-3. Create a `.env` file in the root directory:
-```
-OPENAI_API_KEY=your_api_key_here
-```
-
-4. Start the backend server:
-```bash
-uvicorn mcp_orchestrator.app.main:app --reload
-```
-
-### Frontend Setup
-
-1. Navigate to the frontend directory:
-```bash
-cd frontend
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Start the development server:
-```bash
-npm run dev
-```
-
-The application will be available at:
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:8000
+- Backend: FastAPI, Python
+- Frontend: React, TypeScript
+- AI: OpenAI API
+- PDF Processing: PyPDF2
 
 ## Project Structure
 
 ```
 .
-├── frontend/                # React frontend application
-│   ├── src/
-│   │   ├── components/     # React components
-│   │   ├── services/      # API services
-│   │   └── types/         # TypeScript types
-│   └── ...
-├── mcp_orchestrator/       # FastAPI backend application
-│   ├── app/
-│   │   ├── agents/        # Interview agents
-│   │   ├── utils/         # Utility functions
-│   │   └── main.py        # FastAPI application
-│   └── ...
-├── requirements.txt        # Python dependencies
-└── README.md
+├── frontend/               # React frontend application
+│   ├── public/            # Static files
+│   └── src/               # Source code
+│       ├── components/    # React components
+│       ├── services/      # API services
+│       └── types/         # TypeScript type definitions
+│
+├── mcp_orchestrator/      # FastAPI backend
+│   └── app/
+│       ├── agents/       # AI agent implementations
+│       └── utils/        # Utility functions
+│
+└── requirements.txt       # Python dependencies
 ```
+
+## Setup
+
+1. Clone the repository
+2. Install Python dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Create a `.env` file in the root directory and add your OpenAI API key:
+   - Required environment variable: `OPENAI_API_KEY`
+   - Get your API key from [OpenAI's platform](https://platform.openai.com/api-keys)
+4. Install frontend dependencies:
+   ```bash
+   cd frontend
+   npm install
+   ```
+
+## Running the Application
+
+1. Start the backend server:
+   ```bash
+   cd mcp_orchestrator
+   uvicorn app.main:app --reload
+   ```
+
+2. Start the frontend development server:
+   ```bash
+   cd frontend
+   npm start
+   ```
+
+## API Endpoints
+
+- `POST /start-session`: Start a new interview session
+- `POST /next-question`: Get the next interview question
+- `POST /submit-response`: Submit and evaluate a response
+- `GET /session/{session_id}`: Get session state
 
 ## Contributing
 
 1. Fork the repository
-2. Create a new branch for your feature
+2. Create a feature branch
 3. Commit your changes
-4. Push to your branch
+4. Push to the branch
 5. Create a Pull Request
 
 ## License
 
-MIT License - feel free to use this project for any purpose.
+MIT License
 
 ## Acknowledgments
 
 - OpenAI for GPT-3.5
 - FastAPI team for the excellent framework
 - Material-UI team for the component library
-
-## API Endpoints
-
-### POST /start-session
-Start a new interview session.
-```json
-{
-    "role": "Machine Learning Scientist",
-    "resume_text": "..."
-}
-```
-
-### POST /next-question
-Get the next interview question.
-```json
-{
-    "session_id": "..."
-}
-```
-
-### POST /submit-response
-Submit a response and get feedback.
-```json
-{
-    "session_id": "...",
-    "response": "..."
-}
-```
-
-### GET /session/{session_id}
-Get the current state of a session.
 
 ## API Documentation
 
