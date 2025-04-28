@@ -1,0 +1,11 @@
+fastapi>=0.68.0,<0.69.0
+uvicorn>=0.15.0,<0.16.0
+pydantic>=1.8.0,<2.0.0
+python-dotenv>=0.19.0
+typing-extensions>=4.0.0
+python-multipart  # For file uploads
+PyPDF2>=3.0.0    # For PDF parsing
+langchain>=0.0.200  # For text processing
+python-jose[cryptography]  # For JWT handling
+openai>=1.0.0    # For GPT integration
+httpx>=0.24.0    # For async HTTP requests 
