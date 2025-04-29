@@ -81,4 +81,7 @@ __pycache__/
 
 # OS
 .DS_Store
-Thumbs.db 
+Thumbs.db
+
+# GitHub Workflows (keeping locally only)
+.github/workflows/ 
