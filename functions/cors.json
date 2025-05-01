@@ -1,0 +1,8 @@
+[
+  {
+    "origin": ["https://mock-interview-coach.web.app"],
+    "method": ["GET", "POST", "OPTIONS"],
+    "maxAgeSeconds": 3600,
+    "responseHeader": ["Content-Type", "Authorization"]
+  }
+] 

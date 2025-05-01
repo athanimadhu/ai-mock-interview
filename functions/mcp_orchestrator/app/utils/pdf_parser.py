@@ -1,46 +1,46 @@
-from PyPDF2 import PdfReader
-from typing import Optional
 import io
+import requests
+from PyPDF2 import PdfReader
+import re
 
-async def parse_pdf_to_text(file: bytes) -> str:
-    """
-    Parse a PDF file and extract its text content.
-    
-    Args:
-        file (bytes): The PDF file in bytes
-        
-    Returns:
-        str: Extracted text from the PDF
-    """
+def parse_pdf_from_url(url: str) -> str:
+    """Download and parse a PDF file from a URL."""
     try:
-        # Create a PDF reader object
-        pdf_reader = PdfReader(io.BytesIO(file))
+        # Download the PDF
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an exception for bad status codes
         
-        # Extract text from all pages
+        # Create a file-like object from the content
+        pdf_file = io.BytesIO(response.content)
+        
+        # Parse the PDF
+        reader = PdfReader(pdf_file)
         text = ""
-        for page in pdf_reader.pages:
-            text += page.extract_text() + "\n"
-            
-        return text.strip()
+        for page in reader.pages:
+            text += page.extract_text()
+        
+        return text
     except Exception as e:
-        raise ValueError(f"Error parsing PDF: {str(e)}")
+        raise Exception(f"Failed to parse PDF from URL: {str(e)}")
+
+def parse_pdf_to_text(pdf_content: bytes) -> str:
+    """Parse PDF content to text."""
+    try:
+        pdf_file = io.BytesIO(pdf_content)
+        reader = PdfReader(pdf_file)
+        text = ""
+        for page in reader.pages:
+            text += page.extract_text()
+        return text
+    except Exception as e:
+        raise Exception(f"Failed to parse PDF: {str(e)}")
 
 def clean_resume_text(text: str) -> str:
-    """
-    Clean and normalize resume text.
-    
-    Args:
-        text (str): Raw text from PDF
-        
-    Returns:
-        str: Cleaned and normalized text
-    """
+    """Clean and normalize resume text."""
     # Remove extra whitespace
-    text = " ".join(text.split())
-    
-    # Basic cleaning
-    text = text.replace("\n", " ")
-    text = text.replace("\r", " ")
-    text = text.replace("\t", " ")
-    
+    text = re.sub(r'\s+', ' ', text)
+    # Remove special characters
+    text = re.sub(r'[^\w\s.,;:-]', '', text)
+    # Normalize line endings
+    text = text.replace('\r\n', '\n').replace('\r', '\n')
     return text.strip() 

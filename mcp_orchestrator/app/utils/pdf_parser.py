@@ -1,6 +1,8 @@
 from PyPDF2 import PdfReader
 from typing import Optional
 import io
+import requests
+import re
 
 async def parse_pdf_to_text(file: bytes) -> str:
     """

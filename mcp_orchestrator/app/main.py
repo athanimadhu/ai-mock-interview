@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict, Optional
@@ -7,6 +7,7 @@ import asyncio
 from datetime import datetime
 
 from .utils.pdf_parser import parse_pdf_to_text, clean_resume_text
+from .utils.firebase_admin import require_auth
 from .agents.base import InterviewerAgent, ScorerAgent, FeedbackAgent, QuestionRequest, ScoringRequest, FeedbackRequest
 
 app = FastAPI(title="Mock Interview Coach MCP Orchestrator")
@@ -34,6 +35,7 @@ class InterviewResponse(BaseModel):
 
 class SessionState(BaseModel):
     session_id: str
+    user_id: str
     role: str
     resume_text: str
     job_description: str
@@ -43,21 +45,28 @@ class SessionState(BaseModel):
 class SubmitResponseRequest(BaseModel):
     session_id: str
     response: str
+    user_id: str
 
 # In-memory session store
 sessions: Dict[str, SessionState] = {}
 
 @app.post("/start-session")
+@require_auth
 async def start_session(
+    request: Request,
     role: str = Form(...),
-    resume: UploadFile = File(...),
-    job_description: str = Form(...)
+    resume_url: str = Form(...),
+    job_description: str = Form(...),
+    user_id: str = Form(...)
 ) -> Dict[str, str]:
     """Start a new interview session and return the first question."""
     try:
-        # Read and parse the PDF resume
-        resume_content = await resume.read()
-        resume_text = await parse_pdf_to_text(resume_content)
+        # Verify user_id matches the authenticated user
+        if user_id != request.state.user_id:
+            raise HTTPException(status_code=403, detail="User ID mismatch")
+        
+        # Get resume text from URL
+        resume_text = await parse_pdf_from_url(resume_url)
         resume_text = clean_resume_text(resume_text)
         
         session_id = str(uuid.uuid4())
@@ -75,6 +84,7 @@ async def start_session(
         # Create and store new session state
         sessions[session_id] = SessionState(
             session_id=session_id,
+            user_id=user_id,
             role=role,
             resume_text=resume_text,
             job_description=job_description,
@@ -90,12 +100,17 @@ async def start_session(
         raise HTTPException(status_code=400, detail=str(e))
 
 @app.post("/next-question")
-async def get_next_question(session_id: str) -> Dict[str, str]:
+@require_auth
+async def get_next_question(request: Request, session_id: str, user_id: str) -> Dict[str, str]:
     """Get the next interview question for a session."""
     if session_id not in sessions:
         raise HTTPException(status_code=404, detail="Session not found")
     
     session = sessions[session_id]
+    
+    # Verify user owns this session
+    if session.user_id != request.state.user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to access this session")
     
     # Prepare previous questions
     previous_questions = [
@@ -117,18 +132,24 @@ async def get_next_question(session_id: str) -> Dict[str, str]:
     return {"question": next_question}
 
 @app.post("/submit-response")
-async def submit_response(request: SubmitResponseRequest) -> Dict[str, any]:
+@require_auth
+async def submit_response(request: Request, submit_request: SubmitResponseRequest) -> Dict[str, any]:
     """Submit a response and get the score and feedback."""
-    if request.session_id not in sessions:
+    if submit_request.session_id not in sessions:
         raise HTTPException(status_code=404, detail="Session not found")
     
-    session = sessions[request.session_id]
+    session = sessions[submit_request.session_id]
+    
+    # Verify user owns this session
+    if session.user_id != request.state.user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to access this session")
+    
     current_question = session.current_question
     
     # Get score from scorer agent
     scoring_request = ScoringRequest(
         question=current_question,
-        response=request.response,
+        response=submit_request.response,
         role=session.role,
         job_description=session.job_description
     )
@@ -137,7 +158,7 @@ async def submit_response(request: SubmitResponseRequest) -> Dict[str, any]:
     # Get feedback from feedback agent
     feedback_request = FeedbackRequest(
         question=current_question,
-        response=request.response,
+        response=submit_request.response,
         score=score,
         role=session.role,
         job_description=session.job_description
@@ -147,7 +168,7 @@ async def submit_response(request: SubmitResponseRequest) -> Dict[str, any]:
     # Create response record
     response_record = InterviewResponse(
         question=current_question,
-        response=request.response,
+        response=submit_request.response,
         score=score,
         feedback=feedback,
         timestamp=datetime.utcnow().isoformat()
@@ -163,11 +184,19 @@ async def submit_response(request: SubmitResponseRequest) -> Dict[str, any]:
     }
 
 @app.get("/session/{session_id}")
-async def get_session_state(session_id: str) -> SessionState:
+@require_auth
+async def get_session_state(request: Request, session_id: str, user_id: str) -> SessionState:
     """Get the current state of a session."""
     if session_id not in sessions:
         raise HTTPException(status_code=404, detail="Session not found")
-    return sessions[session_id]
+    
+    session = sessions[session_id]
+    
+    # Verify user owns this session
+    if session.user_id != request.state.user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to access this session")
+    
+    return session
 
 @app.on_event("startup")
 async def startup_event():

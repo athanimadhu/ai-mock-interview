@@ -2,13 +2,14 @@ from typing import List, Dict, Any
 import openai
 import os
 from dotenv import load_dotenv
+from openai import AsyncOpenAI
 
 # Load environment variables
 load_dotenv()
 
 class OpenAIClient:
     def __init__(self):
-        self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        self.client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         self.model = "gpt-3.5-turbo"  # Using more cost-effective model
     
     async def generate_interview_question(self, role: str, resume_text: str, job_description: str, previous_qa: List[Dict[str, str]]) -> str:
@@ -37,7 +38,7 @@ Previous Questions Asked:
             {"role": "user", "content": prompt}
         ]
         
-        response = self.client.chat.completions.create(
+        response = await self.client.chat.completions.create(
             model=self.model,
             messages=conversation,
             temperature=0.7,
@@ -65,7 +66,7 @@ Return only a single number between 0 and 1 representing the total score."""
             {"role": "user", "content": prompt}
         ]
         
-        response = self.client.chat.completions.create(
+        response = await self.client.chat.completions.create(
             model=self.model,
             messages=conversation,
             temperature=0.3,
@@ -100,7 +101,7 @@ Keep feedback under 100 words."""
             {"role": "user", "content": prompt}
         ]
         
-        response = self.client.chat.completions.create(
+        response = await self.client.chat.completions.create(
             model=self.model,
             messages=conversation,
             temperature=0.7,

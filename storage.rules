@@ -2,8 +2,21 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
+    // Resumes folder
+    match /resumes/{userId}/{fileName} {
+      // Only allow authenticated users to access their own files
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Validate file uploads
+      allow create: if request.auth != null 
+        && request.auth.uid == userId
+        && request.resource.size < 5 * 1024 * 1024 // 5MB max file size
+        && request.resource.contentType.matches('application/pdf'); // Only allow PDFs
+    }
+
+    // Block access to all other paths
     match /{allPaths=**} {
-      allow read, write: if true;  // For development. Restrict in production.
+      allow read, write: if false;
     }
   }
 } 
