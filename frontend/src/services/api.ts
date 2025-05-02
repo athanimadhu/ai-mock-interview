@@ -19,8 +19,8 @@ axiosInstance.interceptors.request.use(async (config) => {
     }
     const token = await auth.currentUser.getIdToken();
     config.headers.Authorization = `Bearer ${token}`;
-    // Log the token and Authorization header for debugging
-    console.log('Setting Authorization header:', config.headers.Authorization);
+    // Only log that authentication is being set, not the actual token
+    console.log('Authentication: Token set (redacted for security)');
     return config;
 });
 
