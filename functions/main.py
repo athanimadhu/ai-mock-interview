@@ -11,6 +11,7 @@ import os
 from dotenv import load_dotenv
 import requests
 import asyncio
+from datetime import datetime
 
 # Initialize Firebase Admin
 app = initialize_app()
@@ -213,11 +214,15 @@ def submit_response(req: https_fn.Request) -> https_fn.Response:
             feedback = await feedback_agent.generate_feedback(feedback_request)
 
             # Generate next question
+            previous_questions = session_data['questions_asked']
+            # Patch: ensure previous_questions is a list of dicts
+            if previous_questions and isinstance(previous_questions[0], str):
+                previous_questions = [{"question": q, "response": ""} for q in previous_questions]
             question_request = QuestionRequest(
                 role=session_data['role'],
                 resume_text=session_data['resume_text'],
                 job_description=session_data['job_description'],
-                previous_questions=session_data['questions_asked']
+                previous_questions=previous_questions
             )
             next_question = await interviewer_agent.generate_question(question_request)
 
@@ -244,7 +249,7 @@ def submit_response(req: https_fn.Request) -> https_fn.Response:
             'response': response_text,
             'score': score,
             'feedback': feedback,
-            'timestamp': firestore.SERVER_TIMESTAMP
+            'timestamp': datetime.utcnow().isoformat()
         })
 
         # Update Firestore

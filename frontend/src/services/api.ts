@@ -13,10 +13,14 @@ const axiosInstance = axios.create({
 
 // Add auth token to requests
 axiosInstance.interceptors.request.use(async (config) => {
-    if (auth.currentUser) {
-        const token = await auth.currentUser.getIdToken();
-        config.headers.Authorization = `Bearer ${token}`;
+    if (!auth.currentUser) {
+        console.error('No authenticated user!');
+        throw new Error('User must be authenticated to make API requests');
     }
+    const token = await auth.currentUser.getIdToken();
+    config.headers.Authorization = `Bearer ${token}`;
+    // Log the token and Authorization header for debugging
+    console.log('Setting Authorization header:', config.headers.Authorization);
     return config;
 });
 
@@ -65,9 +69,11 @@ export const api = {
         if (!auth.currentUser) {
             throw new Error('User must be authenticated to submit a response');
         }
+        // Log the payload for debugging
+        console.log('Payload to backend:', request);
         const response = await axiosInstance.post<SubmitResponseResponse>('/api/submit-response', {
-            ...request,
-            user_id: auth.currentUser.uid
+            session_id: request.session_id,
+            response: request.response
         });
         return response.data;
     },
@@ -91,6 +97,12 @@ export const api = {
         const response = await axiosInstance.get<SessionState>(`/api/get-session`, {
             params: { session_id: sessionId, user_id: auth.currentUser.uid }
         });
+        console.log('Fetched session state:', response.data);
+        if (!response.data.session_id) {
+            response.data.session_id = sessionId;
+        }
         return response.data;
     },
-}; 
+};
+
+export { axiosInstance }; 
